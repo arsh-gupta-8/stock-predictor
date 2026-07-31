@@ -5,11 +5,12 @@ import modifyData as md
 # stockDataFrame = yf.download("AAPL", period="1y", interval="1d").reset_index()
 # stockDataFrame.to_csv('output.csv', index=False)
 
-filename = "output.csv"
-SMA_margin = 20
+RECORD_MARGIN = 20
 
-data = md.removeTopLine(filename=filename)
-data = md.featureEngineer(data=data, recordsUsed=SMA_margin)
+filename = "output.csv"
+data = pd.read_csv(filename)
+data = md.removeTopLine(data=data)
+data = md.featureEngineer(data=data, recordsUsed=RECORD_MARGIN)
 # data['SMA20'] = data['Close'].rolling(window=20).mean()
 
 print(data)
