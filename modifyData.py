@@ -24,6 +24,9 @@ def featureEngineer(data, recordsUsed=20):
   # List Close price against average
   data['Price_vs_SMA20'] = data['Close'] / data['SMA20']
 
+  # 1 Day Return
+  data = Return1(data)
+
   return data
 
 
@@ -43,5 +46,23 @@ def EMA_calc(data, recordsUsed):
 
   # Pre Built Code Function
   data['EMA20'] = data['Close'].ewm(span=recordsUsed, adjust=False).mean()
+
+  return data
+
+
+def Return1(data):
+
+  r1_values = np.full(len(data), np.nan)
+  close_values = data['Close']
+
+  r1_values[0] = 0
+
+  for i in range(len(data) - 1):
+    r1_values[i+1] = ((close_values[i+2] - close_values[i+1]) / close_values[i+1]) * 100
+
+  data['Return1'] = r1_values
+
+  # For optimised code do this
+  # data['Return1'] = data['Close'].pct_change().fillna(0)
 
   return data
