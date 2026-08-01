@@ -30,8 +30,14 @@ def featureEngineer(data, recordsUsed=20):
   # 5 Day % Change
   data['Return5'] = data['Close'].pct_change(periods=5).fillna(0)
 
-  # Relative Strength Index
+  # 6 Relative Strength Index
   data = RSI(data)
+
+  # 7 Volume Ratio
+  data['volRatio'] = data['Volume'] / data['Volume'].rolling(window=recordsUsed).mean()
+
+  # Volatility
+  data['Volatility20'] = data['Return1'].rolling(window=recordsUsed).std()
 
   return data
 
