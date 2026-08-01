@@ -24,8 +24,14 @@ def featureEngineer(data, recordsUsed=20):
   # List Close price against average
   data['Price_vs_SMA20'] = data['Close'] / data['SMA20']
 
-  # 1 Day Return
-  data = Return1(data)
+  # 1 Day % Change
+  data['Return1'] = data['Close'].pct_change().fillna(0)
+
+  # 5 Day % Change
+  data['Return5'] = data['Close'].pct_change(periods=5).fillna(0)
+
+  # Relative Strength Index
+  data = RSI(data)
 
   return data
 
@@ -50,19 +56,26 @@ def EMA_calc(data, recordsUsed):
   return data
 
 
-def Return1(data):
+def RSI(data, window=14):
 
-  r1_values = np.full(len(data), np.nan)
-  close_values = data['Close']
+  RSI_values = np.full(len(data), np.nan)
 
-  r1_values[0] = 0
+  delta = data['Close'].diff()
 
-  for i in range(len(data) - 1):
-    r1_values[i+1] = ((close_values[i+2] - close_values[i+1]) / close_values[i+1]) * 100
+  for record in range(window + 1, len(data) + 1):
+    gains, losses = 0, 0
+    for diff in delta[record-window+1:record+1]:
+      if diff >= 0:
+        gains += diff
+      else:
+        losses -= diff
 
-  data['Return1'] = r1_values
+    gain_avg = gains / 14
+    loss_avg = losses / 14
+    rs = gain_avg / loss_avg
 
-  # For optimised code do this
-  # data['Return1'] = data['Close'].pct_change().fillna(0)
+    RSI_values[record - 1] = 100 - (100 / (1 + rs))
+
+  data['RSI'] = RSI_values
 
   return data
