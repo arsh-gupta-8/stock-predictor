@@ -36,8 +36,14 @@ def featureEngineer(data, recordsUsed=20):
   # 7 Volume Ratio
   data['volRatio'] = data['Volume'] / data['Volume'].rolling(window=recordsUsed).mean()
 
-  # Volatility
+  # 8 Volatility
   data['Volatility20'] = data['Return1'].rolling(window=recordsUsed).std()
+
+  # 9 Lag1
+  data["Lag1"] = data["Return1"].shift(1)
+
+  # 10 Lag2
+  data["Lag2"] = data["Return1"].shift(2)
 
   return data
 
