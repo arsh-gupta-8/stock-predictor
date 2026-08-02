@@ -2,10 +2,12 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
 
-def makeModel(data):
+def trainModel(data):
 
-  x = data.drop(columns=['Target'])
-  y = data['Target']
+  xTrain = data.drop(columns=['Target', 'Date'])
+  yTrain = data['Target']
 
   model = RandomForestRegressor(n_estimators=100, random_state=42)
-  model.fit()
+  model.fit(xTrain, yTrain)
+
+  return model

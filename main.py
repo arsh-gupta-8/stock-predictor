@@ -1,7 +1,8 @@
 import yfinance as yf
 import pandas as pd
 import features as md
-import train as tr
+import train
+import test
 
 
 def getStockData(stockName):
@@ -24,9 +25,9 @@ trainingData = pd.read_csv(f"Data/{STOCK}-train.csv")
 testingData = pd.read_csv(f"Data/{STOCK}-test.csv")
 
 trainingData = md.featureEngineer(data=trainingData, recordsUsed=RECORD_MARGIN)
-
 testingData = md.featureEngineer(data=testingData, recordsUsed=RECORD_MARGIN)
 
+stockModel = train.trainModel(data=trainingData)
+test.testModel(data=testingData, model=stockModel)
 
-
-print(trainingData)
+# print(trainingData)
