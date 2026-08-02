@@ -45,6 +45,9 @@ def featureEngineer(data, recordsUsed=20):
   # 10 Lag2
   data["Lag2"] = data["Return1"].shift(2)
 
+  # TARGET
+  data["Target"] = data["Return1"].shift(-1)
+
   return data
 
 
