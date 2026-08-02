@@ -2,11 +2,9 @@ import pandas as pd
 import numpy as np
 
 
-def removeTopLine(data):
-  return data.iloc[1:]
-
-
 def featureEngineer(data, recordsUsed=20):
+
+  data = data.iloc[1:]
 
   # Convert all columns to appropriate datatypes first
   data['Close'] = data['Close'].astype(float)
@@ -47,6 +45,8 @@ def featureEngineer(data, recordsUsed=20):
 
   # TARGET
   data["Target"] = data["Return1"].shift(-1)
+
+  data = data.iloc[20:-1]
 
   return data
 
