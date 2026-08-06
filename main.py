@@ -12,19 +12,19 @@ def getStockData(stockName):
   trainingFile = f"Data/{stockName}-train.csv"
   testingFile = f"Data/{stockName}-test.csv"
 
-  stockDataFrame = yf.download(stockName, start="2005-7-31", end="2025-7-31", interval="1d").reset_index()
+  stockDataFrame = yf.download(stockName, start="2005-7-31", interval="1d").reset_index()
 
   if stockDataFrame.empty:
     return 0
 
   stockDataFrame.to_csv(trainingFile, index=False)
 
-  stockDataFrame = yf.download(stockName, start="2025-8-1", end="2026-8-1", interval="1d").reset_index()
+  stockDataFrame = yf.download(stockName, start="2025-8-1", interval="1d").reset_index()
   stockDataFrame.to_csv(testingFile, index=False)
 
   return 1
 
-  
+
 
 def checkStockData(stockNames):
   for stock in stockNames[:]:
@@ -44,13 +44,19 @@ def addFeaturesCombine(stockNames, use="train"):
   finalData = None
 
   for index, stock in enumerate(stockNames):
-    data = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-{use}.csv"), recordsUsed=RECORD_MARGIN)
+    data = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-{use}.csv"), recordsUsed=RECORD_MARGIN, use=use)
     if index == 0:
       finalData = data
     else:
       finalData = pd.concat([finalData, data], ignore_index=True)
 
   return finalData
+
+
+
+def getTodayStockData(stockName):
+  getStockData(stockName=stockName)
+  return addFeaturesCombine(stockNames=[stockName], use="test").iloc[-1]
 
 
 
@@ -142,6 +148,11 @@ def main():
         total += bt.backtest(model=stockModel, testingData=testingData, startAmount=startAmount)
 
       print("Total for all Stocks: " + total)
+
+    # Testing Function
+    # elif option == 7:
+    #   for stock in stockNamesTesting:
+    #     print(getTodayStockData(stockName=stock))
 
     if option != 9:
       print()

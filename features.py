@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def featureEngineer(data, recordsUsed=20):
+def featureEngineer(data, recordsUsed=20, use="train"):
 
   data = data.iloc[1:]
 
@@ -46,7 +46,10 @@ def featureEngineer(data, recordsUsed=20):
   # TARGET
   data["Target"] = data["Return1"].shift(-1)
 
-  data = data.iloc[20:-1]
+  if use == "train":
+    data = data.iloc[20:-1]
+  else:
+    data = data.iloc[20:]
 
   return data
 
