@@ -1,1 +1,22 @@
-{}
+{
+    "AAPL": false,
+    "AAPLValue": 10000,
+    "MSFT": true,
+    "MSFTValue": 0,
+    "NVDA": false,
+    "NVDAValue": 10000,
+    "JPM": true,
+    "JPMValue": 0,
+    "BAC": false,
+    "BACValue": 10000,
+    "AMZN": false,
+    "AMZNValue": 10000,
+    "WMT": false,
+    "WMTValue": 10000,
+    "JNJ": false,
+    "JNJValue": 10000,
+    "PFE": false,
+    "PFEValue": 10000,
+    "SPY": false,
+    "SPYValue": 10000
+}

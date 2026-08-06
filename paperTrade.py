@@ -34,6 +34,7 @@ def makeTrade(stockNames, allStockToday, model):
     json.dump(data, file, indent=4)
 
   for i in range(len(stockNames)):
+    print(f"Now managing stock {stockNames[i]}")
     prediction = test.givePrediction(data=allStockToday[i], model=model)
     decision = dbsc.stockDecision(pred=prediction, todayReturn=allStockToday[i]["Return1"], inShares=stockStatus[stockNames[i]])
 
@@ -46,9 +47,10 @@ def makeTrade(stockNames, allStockToday, model):
       )
 
       buyOrder = tradeClient.submit_order(order_data=buyRequest)
-      print(f"Invested ${stockStatus[stockNames[i]+"Value"]} into {stockStatus[stockNames[i]+"Value"]}. Order ID: {buyOrder.id}")
+      print(f"Invested ${stockStatus[stockNames[i]+"Value"]} into {stockNames[i]}. Order ID: {buyOrder.id}")
 
       stockStatus[stockNames[i]] = True
+      stockStatus[stockNames[i]+"Value"] = 0
 
     elif decision == "SELL":
       try:
