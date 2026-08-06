@@ -56,22 +56,59 @@ def addFeaturesCombine(stockNamesTraining, stockNamesTesting):
       finalTestingData = pd.concat([finalTestingData, testingData], ignore_index=True)
   
   return finalTrainingData, finalTestingData
-  
+
+
+def main():
+
+  stockModel = None
+  stockNamesTraining = ["AAPL", "MSFT"]
+  stockNamesTesting = ["GOOGL"]
+
+  option = int(input("""Would you like to 
+  (1) Edit training stocks 
+  (2) Edit testing stocks
+  (3) Train and save a new model
+  (4) Load an existing model
+  (5) Look at model stastics 
+  (6) Backtest a model
+  ::: """))
+
+  stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
+  stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
+  trainingData, testingData = addFeaturesCombine(stockNamesTraining=stockNamesTraining, stockNamesTesting=stockNamesTesting)
+
+  if option == 1:
+
+    while True:
+      print(stockNamesTraining)
+      stockEdit = input("Enter name of stock to add/remove or EXIT ::: ").upper()
+      if stockEdit == "EXIT":
+        break
+      else:
+        if stockEdit in stockNamesTraining:
+          stockNamesTraining.remove(stockEdit)
+        else:
+          stockNamesTraining.append(stockEdit)
+
+
+  elif option == 3:
+    modelName = input("What would you like to name this model ::: ")
+
+    stockModel = train.trainModel(data=trainingData)
+    sl.saveModel(model=stockModel, modelName=modelName)
+
+  elif option == 4:
+    modelName = input("What is the name of the model ::: ")
+
+    stockModel = sl.loadModel(modelName=modelName)
+
+  # elif option == 6:
+  #   startAmount = int(input("Choose a starting amount ::: "))
+  #   bt.backtest(model=stockModel, testingData=testingData, startAmount=startAmount)
+
 
 RECORD_MARGIN = 20
-stockNamesTraining = ["AAPL", "MSFT"]
-stockNamesTesting = ["GOOGL"]
-stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
-stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
-trainingData, testingData = addFeaturesCombine(stockNamesTraining=stockNamesTraining, stockNamesTesting=stockNamesTesting)
-
-# CREATE AND SAVE MODEL
-# stockModel = train.trainModel(data=trainingData)
-# sl.saveModel(model=stockModel, modelName="RFR")
-
-# LOAD MODEL
-stockModel = sl.loadModel(modelName="RFR")
 
 # predictions = test.testModel(data=testingData, model=stockModel)
 
-bt.backtest(model=stockModel, testingData=testingData)
+main()

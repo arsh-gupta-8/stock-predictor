@@ -29,9 +29,11 @@ def backtest(model, testingData):
         inShares = False
 
 
-  final_wallet = wallet if not inShares else shareValue
+  finalMoney = wallet if not inShares else shareValue
   
-  total_return_pct = (final_wallet / startValue) * 100
-  print(f"Final Wallet: ${final_wallet:.2f} | Total Return: {total_return_pct:.2f}%")
+  print(f"Final Wallet: ${finalMoney:.2f}")
+  print(f"Total Return: {((finalMoney / startValue) * 100):.2f}%")
+
+  return finalMoney
   
 
