@@ -84,8 +84,14 @@ def main():
     print()
 
     if option == 0:
+
+      viewMode = True
+      viewing = input("Would you like to enter in view mode (Y/N) ::: ").upper()
+      if viewing == "N":
+        viewMode = False
+
       stockDataToday = [getTodayStockData(stockName=stockName) for stockName in stockNamesTrading]
-      paperTrade.makeTrade(stockNames=stockNamesTrading, allStockToday=stockDataToday, model=stockModel)
+      paperTrade.makeTrade(stockNames=stockNamesTrading, allStockToday=stockDataToday, model=stockModel, viewMode=viewMode)
 
     elif option == 1:
 
