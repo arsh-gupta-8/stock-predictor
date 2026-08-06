@@ -4,7 +4,7 @@ import features as md
 import train
 import test
 import save as sl
-
+import backtesting as bt
 
 def getStockData(stockName):
   trainingFile = f"Data/{stockName}-train.csv"
@@ -12,8 +12,6 @@ def getStockData(stockName):
 
   stockDataFrame = yf.download(stockName, start="2005-7-31", end="2025-7-31", interval="1d").reset_index()
 
-  print(stockDataFrame)
-  print(stockDataFrame.empty)
   if stockDataFrame.empty:
     return 0
 
@@ -37,25 +35,35 @@ def checkStockData(stockNames):
   return stockNames
 
 
-def addFeaturesCombine(stockNames):
+def addFeaturesCombine(stockNamesTraining, stockNamesTesting):
+
   finalTrainingData = None
-  finalTestingData = None
-  for index, stock in enumerate(stockNames):
+
+  for index, stock in enumerate(stockNamesTraining):
     trainingData = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-train.csv"), recordsUsed=RECORD_MARGIN)
-    testingData = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-test.csv"), recordsUsed=RECORD_MARGIN)
     if index == 0:
       finalTrainingData = trainingData
-      finalTestingData = testingData
     else:
       finalTrainingData = pd.concat([finalTrainingData, trainingData], ignore_index=True)
+
+  finalTestingData = None
+
+  for index, stock in enumerate(stockNamesTesting):
+    testingData = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-test.csv"), recordsUsed=RECORD_MARGIN)
+    if index == 0:
+      finalTestingData = testingData
+    else:
       finalTestingData = pd.concat([finalTestingData, testingData], ignore_index=True)
+  
   return finalTrainingData, finalTestingData
   
 
 RECORD_MARGIN = 20
-stockNames = ["AAPL", "MSFT"]
-stockNames = checkStockData(stockNames=stockNames)
-trainingData, testingData = addFeaturesCombine(stockNames=stockNames)
+stockNamesTraining = ["AAPL", "MSFT"]
+stockNamesTesting = ["GOOGL"]
+stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
+stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
+trainingData, testingData = addFeaturesCombine(stockNamesTraining=stockNamesTraining, stockNamesTesting=stockNamesTesting)
 
 # CREATE AND SAVE MODEL
 # stockModel = train.trainModel(data=trainingData)
@@ -64,4 +72,6 @@ trainingData, testingData = addFeaturesCombine(stockNames=stockNames)
 # LOAD MODEL
 stockModel = sl.loadModel(modelName="RFR")
 
-predictions = test.testModel(data=testingData, model=stockModel)
+# predictions = test.testModel(data=testingData, model=stockModel)
+
+bt.backtest(model=stockModel, testingData=testingData)
