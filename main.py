@@ -28,6 +28,6 @@ trainingData = md.featureEngineer(data=trainingData, recordsUsed=RECORD_MARGIN)
 testingData = md.featureEngineer(data=testingData, recordsUsed=RECORD_MARGIN)
 
 stockModel = train.trainModel(data=trainingData)
-test.testModel(data=testingData, model=stockModel)
+predictions = test.testModel(data=testingData, model=stockModel)
 
 # print(trainingData)

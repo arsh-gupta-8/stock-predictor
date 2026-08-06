@@ -1,5 +1,5 @@
 from sklearn.metrics import mean_squared_error, r2_score
-
+import numpy as np
 
 def testModel(data, model):
 
@@ -9,3 +9,4 @@ def testModel(data, model):
   yPrediction = model.predict(xTest)
   print(f"MSE: {mean_squared_error(yTest, yPrediction):.4f}")
   print(f"R2: {r2_score(yTest, yPrediction):.4f}")
+  print((np.sum(np.sign(yPrediction) == np.sign(yTest))) / len(yPrediction))
