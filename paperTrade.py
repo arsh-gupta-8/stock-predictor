@@ -28,7 +28,10 @@ def makeTrade(stockNames, allStockToday, model):
 
     stockStatus = data.copy()
 
-    file.write(data)
+    file.seek(0)
+    file.truncate()
+
+    json.dump(data, file, indent=4)
 
   for i in range(len(stockNames)):
     prediction = test.givePrediction(data=allStockToday[i], model=model)
@@ -36,7 +39,7 @@ def makeTrade(stockNames, allStockToday, model):
 
     if decision == "BUY":
       buyRequest = MarketOrderRequest(
-        symbol=stockStatus,
+        symbol=stockNames[i],
         notional=stockStatus[stockNames[i]+"Value"],
         side=OrderSide.BUY,
         time_in_force=TimeInForce.DAY
@@ -51,7 +54,7 @@ def makeTrade(stockNames, allStockToday, model):
       try:
         cashBefore = float(tradeClient.get_account().cash)
         tradeClient.close_position(stockNames[i])
-        time.sleep(1) 
+        time.sleep(3) 
         cashAfter = float(tradeClient.get_account().cash)
         deltaCash = cashAfter - cashBefore
         print(f"Successfully sold all shares of {stockNames[i]} for ${deltaCash}")
@@ -60,4 +63,4 @@ def makeTrade(stockNames, allStockToday, model):
         print(f"Could not sell. Ensure you actually hold a position: {e}")
 
   with open("stockStatus.json", "w") as file:
-    file.write(stockStatus)
+    json.dump(stockStatus, file, indent=4)

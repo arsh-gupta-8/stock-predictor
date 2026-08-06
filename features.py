@@ -81,7 +81,7 @@ def RSI(data, window=14):
   delta = data['Close'].diff()
 
   for record in range(window + 1, len(data) + 1):
-    gains, losses = 0, 0
+    gains, losses = 0, 0.00001
     for diff in delta[record-window+1:record+1]:
       if diff >= 0:
         gains += diff

@@ -13,6 +13,5 @@ def testModel(data, model):
 
 
 def givePrediction(data, model):
-
   test = data.drop(columns=['Target', 'Date'])
   return model.predict(test)

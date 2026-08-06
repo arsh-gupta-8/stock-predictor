@@ -5,6 +5,7 @@ import train
 import test
 import save as sl
 import backtesting as bt
+import paperTrade
 
 
 
@@ -12,7 +13,7 @@ def getStockData(stockName):
   trainingFile = f"Data/{stockName}-train.csv"
   testingFile = f"Data/{stockName}-test.csv"
 
-  stockDataFrame = yf.download(stockName, start="2005-7-31", interval="1d").reset_index()
+  stockDataFrame = yf.download(stockName, start="2005-7-31", end="2025-7-31", interval="1d").reset_index()
 
   if stockDataFrame.empty:
     return 0
@@ -56,19 +57,21 @@ def addFeaturesCombine(stockNames, use="train"):
 
 def getTodayStockData(stockName):
   getStockData(stockName=stockName)
-  return addFeaturesCombine(stockNames=[stockName], use="test").iloc[-1]
+  return addFeaturesCombine(stockNames=[stockName], use="test").iloc[[-1]]
 
 
 
 def main():
 
   stockModel = None
-  stockNamesTraining = ["AAPL", "MSFT"]
-  stockNamesTesting = ["GOOGL"]
+  stockNamesTraining = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
+  stockNamesTesting = ["SPY"]
+  stockNamesTrading = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
 
   option = -1
   while option != 9:
     option = int(input("""Would you like to 
+    (0) Access Alpaca for paper trading
     (1) Edit training stocks 
     (2) Edit testing stocks
     (3) Train and save a new model
@@ -80,7 +83,11 @@ def main():
 
     print()
 
-    if option == 1:
+    if option == 0:
+      stockDataToday = [getTodayStockData(stockName=stockName) for stockName in stockNamesTrading]
+      paperTrade.makeTrade(stockNames=stockNamesTrading, allStockToday=stockDataToday, model=stockModel)
+
+    elif option == 1:
 
       while True:
         print(stockNamesTraining)
@@ -92,7 +99,6 @@ def main():
             stockNamesTraining.remove(stockEdit)
           else:
             stockNamesTraining.append(stockEdit)
-
 
     elif option == 2:
     
@@ -107,7 +113,6 @@ def main():
             else:
               stockNamesTesting.append(stockEdit)
     
-
     elif option == 3:
 
       modelName = input("What would you like to name this model ::: ")
@@ -115,6 +120,7 @@ def main():
       stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
       trainingData = addFeaturesCombine(stockNames=stockNamesTraining, use="train")
 
+      print("Data is ready. Training model ...")
       stockModel = train.trainModel(data=trainingData)
       sl.saveModel(model=stockModel, modelName=modelName)
 
@@ -149,10 +155,6 @@ def main():
 
       print("Total for all Stocks: " + total)
 
-    # Testing Function
-    # elif option == 7:
-    #   for stock in stockNamesTesting:
-    #     print(getTodayStockData(stockName=stock))
 
     if option != 9:
       print()
