@@ -6,6 +6,8 @@ import test
 import save as sl
 import backtesting as bt
 
+
+
 def getStockData(stockName):
   trainingFile = f"Data/{stockName}-train.csv"
   testingFile = f"Data/{stockName}-test.csv"
@@ -21,6 +23,7 @@ def getStockData(stockName):
   stockDataFrame.to_csv(testingFile, index=False)
 
   return 1
+
   
 
 def checkStockData(stockNames):
@@ -35,27 +38,20 @@ def checkStockData(stockNames):
   return stockNames
 
 
-def addFeaturesCombine(stockNamesTraining, stockNamesTesting):
 
-  finalTrainingData = None
+def addFeaturesCombine(stockNames, use="train"):
 
-  for index, stock in enumerate(stockNamesTraining):
-    trainingData = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-train.csv"), recordsUsed=RECORD_MARGIN)
+  finalData = None
+
+  for index, stock in enumerate(stockNames):
+    data = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-{use}.csv"), recordsUsed=RECORD_MARGIN)
     if index == 0:
-      finalTrainingData = trainingData
+      finalData = data
     else:
-      finalTrainingData = pd.concat([finalTrainingData, trainingData], ignore_index=True)
+      finalData = pd.concat([finalData, data], ignore_index=True)
 
-  finalTestingData = None
+  return finalData
 
-  for index, stock in enumerate(stockNamesTesting):
-    testingData = md.featureEngineer(data=pd.read_csv(f"Data/{stock}-test.csv"), recordsUsed=RECORD_MARGIN)
-    if index == 0:
-      finalTestingData = testingData
-    else:
-      finalTestingData = pd.concat([finalTestingData, testingData], ignore_index=True)
-  
-  return finalTrainingData, finalTestingData
 
 
 def main():
@@ -64,51 +60,95 @@ def main():
   stockNamesTraining = ["AAPL", "MSFT"]
   stockNamesTesting = ["GOOGL"]
 
-  option = int(input("""Would you like to 
-  (1) Edit training stocks 
-  (2) Edit testing stocks
-  (3) Train and save a new model
-  (4) Load an existing model
-  (5) Look at model stastics 
-  (6) Backtest a model
-  ::: """))
+  option = -1
+  while option != 9:
+    option = int(input("""Would you like to 
+    (1) Edit training stocks 
+    (2) Edit testing stocks
+    (3) Train and save a new model
+    (4) Load an existing model
+    (5) Look at model stastics 
+    (6) Backtest a model
+    (9) Exit
+    ::: """))
 
-  stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
-  stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
-  trainingData, testingData = addFeaturesCombine(stockNamesTraining=stockNamesTraining, stockNamesTesting=stockNamesTesting)
+    print()
 
-  if option == 1:
+    if option == 1:
 
-    while True:
-      print(stockNamesTraining)
-      stockEdit = input("Enter name of stock to add/remove or EXIT ::: ").upper()
-      if stockEdit == "EXIT":
-        break
-      else:
-        if stockEdit in stockNamesTraining:
-          stockNamesTraining.remove(stockEdit)
+      while True:
+        print(stockNamesTraining)
+        stockEdit = input("Enter name of stock to add/remove or EXIT ::: ").upper()
+        if stockEdit == "EXIT":
+          break
         else:
-          stockNamesTraining.append(stockEdit)
+          if stockEdit in stockNamesTraining:
+            stockNamesTraining.remove(stockEdit)
+          else:
+            stockNamesTraining.append(stockEdit)
 
 
-  elif option == 3:
-    modelName = input("What would you like to name this model ::: ")
+    elif option == 2:
+    
+        while True:
+          print(stockNamesTesting)
+          stockEdit = input("Enter name of stock to add/remove or EXIT ::: ").upper()
+          if stockEdit == "EXIT":
+            break
+          else:
+            if stockEdit in stockNamesTesting:
+              stockNamesTesting.remove(stockEdit)
+            else:
+              stockNamesTesting.append(stockEdit)
+    
 
-    stockModel = train.trainModel(data=trainingData)
-    sl.saveModel(model=stockModel, modelName=modelName)
+    elif option == 3:
 
-  elif option == 4:
-    modelName = input("What is the name of the model ::: ")
+      modelName = input("What would you like to name this model ::: ")
 
-    stockModel = sl.loadModel(modelName=modelName)
+      stockNamesTraining = checkStockData(stockNames=stockNamesTraining)
+      trainingData = addFeaturesCombine(stockNames=stockNamesTraining, use="train")
 
-  # elif option == 6:
-  #   startAmount = int(input("Choose a starting amount ::: "))
-  #   bt.backtest(model=stockModel, testingData=testingData, startAmount=startAmount)
+      stockModel = train.trainModel(data=trainingData)
+      sl.saveModel(model=stockModel, modelName=modelName)
+
+
+    elif option == 4:
+
+      modelName = input("What is the name of the model ::: ")
+
+      try:
+        stockModel = sl.loadModel(modelName=modelName)
+        print("Model selected successfuly")
+      except:
+        print("Model doesn't exist")
+
+    elif option == 5:
+      if stockModel == None:
+        print("No model selected")
+      else:
+        stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
+        testingData = addFeaturesCombine(stockNames=stockNamesTesting, use="test")
+
+        test.testModel(data=testingData, model=stockModel)
+
+    elif option == 6:
+      stockNamesTesting = checkStockData(stockNames=stockNamesTesting)
+      total = 0
+
+      for stockName in stockNamesTesting:
+        testingData = addFeaturesCombine(stockNames=[stockName], use="test")
+        startAmount = int(input(f"Choose a starting amount for stock {stockName} ::: "))
+        total += bt.backtest(model=stockModel, testingData=testingData, startAmount=startAmount)
+
+      print("Total for all Stocks: " + total)
+
+    if option != 9:
+      print()
+      input("Press ENTER to Continue ::: ")
+      print()
+
 
 
 RECORD_MARGIN = 20
-
-# predictions = test.testModel(data=testingData, model=stockModel)
-
 main()

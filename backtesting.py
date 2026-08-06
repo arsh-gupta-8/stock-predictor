@@ -1,13 +1,12 @@
 import pandas as pd
 
-def backtest(model, testingData):
+def backtest(model, testingData, startAmount=10000):
   test = testingData.drop(columns=['Target', 'Date'], errors='ignore')
   pred = model.predict(test)
 
   actualReturn = testingData["Return1"].reset_index(drop=True)
 
-  startValue = 100000
-  wallet = 100000
+  wallet = startAmount
   inShares = False
   shareValue = 0
 
@@ -32,7 +31,7 @@ def backtest(model, testingData):
   finalMoney = wallet if not inShares else shareValue
   
   print(f"Final Wallet: ${finalMoney:.2f}")
-  print(f"Total Return: {((finalMoney / startValue) * 100):.2f}%")
+  print(f"Total Return: {((finalMoney / startAmount) * 100):.2f}%")
 
   return finalMoney
   
