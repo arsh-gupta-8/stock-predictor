@@ -7,7 +7,7 @@ def trainModel(data):
   xTrain = data.drop(columns=['Target', 'Date'])
   yTrain = data['Target']
 
-  model = RandomForestRegressor(n_estimators=500)
-  model.fit(xTrain, yTrain, random_state=42)
+  model = RandomForestRegressor(n_estimators=500, random_state=42)
+  model.fit(xTrain, yTrain)
 
   return model
