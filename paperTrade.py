@@ -25,6 +25,7 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
       if stock not in data:
         data[stock] = False
         data[stock+"Value"] = 10000
+        data[stock+"Initial"] = 10000
 
     stockStatus = data.copy()
 
@@ -41,7 +42,8 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
       print(f"This stock is expected to change by {(prediction[0] * 100):.4f}%")
 
     else:
-      decision = dbsc.stockDecision(pred=prediction, todayReturn=allStockToday[i]["Return1"], inShares=stockStatus[stockNames[i]])
+
+      decision = dbsc.stockDecision(pred=prediction, todayReturn=allStockToday[i]["Return1"].item(), inShares=stockStatus[stockNames[i]])
 
       if decision == "BUY":
         buyRequest = MarketOrderRequest(
@@ -51,21 +53,32 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
           time_in_force=TimeInForce.DAY
         )
 
+        with open("stockHistory.txt", "a") as history:
+          history.write(f"BUY {stockNames[i]} FOR ${stockStatus[stockNames[i]+"Value"]}")
+
         buyOrder = tradeClient.submit_order(order_data=buyRequest)
         print(f"Invested ${stockStatus[stockNames[i]+"Value"]} into {stockNames[i]}. Order ID: {buyOrder.id}")
 
         stockStatus[stockNames[i]] = True
+        stockStatus[stockNames[i]+"Initial"] = stockStatus[stockNames[i]+"Value"]
         stockStatus[stockNames[i]+"Value"] = 0
 
       elif decision == "SELL":
         try:
           cashBefore = float(tradeClient.get_account().cash)
           tradeClient.close_position(stockNames[i])
-          time.sleep(3) 
+          time.sleep(3) # GIVE TIME FOR ALPACA TO PROCESS
           cashAfter = float(tradeClient.get_account().cash)
+
           deltaCash = cashAfter - cashBefore
-          print(f"Successfully sold all shares of {stockNames[i]} for ${deltaCash}")
+          deltaCashPCT = ((deltaCash - stockStatus[stockNames[i]+"Initial"]) / stockStatus[stockNames[i]+"Initial"]) * 100
+          print(f"Successfully sold all shares of {stockNames[i]} for ${deltaCash} giving return of {(deltaCashPCT):.4f}%")
+
           stockStatus[stockNames[i]+"Values"] = deltaCash
+
+          with open("stockHistory.txt", "a") as history:
+            history.write(f"SOLD {stockNames[i]} FOR ${deltaCash} AND RETURN {(deltaCashPCT):.4f}%")
+
         except Exception as e:
           print(f"Could not sell. Ensure you actually hold a position: {e}")
 

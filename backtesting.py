@@ -2,8 +2,8 @@ import pandas as pd
 import test
 
 def backtest(model, testingData, startAmount=10000):
-  
-  pred = test.givePrediction(data=testingData.drop(columns=['Target', 'Date'], errors='ignore'), model=model)
+
+  pred = test.givePrediction(data=testingData, model=model)
   actualReturn = testingData["Return1"].reset_index(drop=True)
 
   wallet = startAmount

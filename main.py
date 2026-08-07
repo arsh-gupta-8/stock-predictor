@@ -65,7 +65,7 @@ def main():
 
   stockModel = None
   stockNamesTraining = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
-  stockNamesTesting = ["SPY"]
+  stockNamesTesting = ["GOOGL"]
   stockNamesTrading = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
 
   option = -1
@@ -159,7 +159,7 @@ def main():
         startAmount = int(input(f"Choose a starting amount for stock {stockName} ::: "))
         total += bt.backtest(model=stockModel, testingData=testingData, startAmount=startAmount)
 
-      print("Total for all Stocks: " + total)
+      print("Total for all Stocks: ", total)
 
 
     if option != 9:
