@@ -4,6 +4,7 @@ import os
 import test
 import json
 import time
+import math
 import numpy as np
 
 from alpaca.trading.client import TradingClient
@@ -102,14 +103,17 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
   if not viewMode:
     print("\nNow accessing API for trading\n")
+
+    print("---------- NOW SELLING ----------")
+
     for i in range(len(stockNames)):
       if stockStatus[stockNamesNP[i]]["inShares"]:
+        print(f"{i+1}. For the stock {stockNamesNP[i]}")
         accountShare = tradeClient.get_open_position(stockNamesNP[i])
         currentAmount = float(accountShare.market_value)
         valueChange = (currentAmount - stockStatus[stockNamesNP[i]]["buyValue"]) / stockStatus[stockNamesNP[i]]["buyValue"]
-        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"], valueChange=valueChange)
         if decision == "SELL":
-          print(f"For the stock {stockNamesNP[i]}")
           stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient)
 
     print("Please wait while any sell transactions are pending")
@@ -121,13 +125,15 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
         inShareCount += 1
 
     canBuy = 10 - inShareCount
-    cashPerStock = float(account.non_marginable_buying_power) / canBuy
+    cashPerStock = math.floor(float(account.non_marginable_buying_power) / canBuy)
+
+    print("---------- NOW BUYING ----------")
 
     for i in range(len(stockNames)):
       if not stockStatus[stockNamesNP[i]]["inShares"]:
-        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]])
+        print(f"{i+1}. For the stock {stockNamesNP[i]}")
+        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"])
         if decision == "BUY" and canBuy > 0:
-          print(f"For the stock {stockNamesNP[i]}")
           stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
           canBuy -= 1
         
