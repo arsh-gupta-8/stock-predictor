@@ -132,10 +132,13 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
     for i in range(len(stockNames)):
       if not stockStatus[stockNamesNP[i]]["inShares"]:
         print(f"{i+1}. For the stock {stockNamesNP[i]}")
-        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"])
-        if decision == "BUY" and canBuy > 0:
-          stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
-          canBuy -= 1
+        if canBuy > 0:
+          decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"])
+          if decision == "BUY":
+            stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
+            canBuy -= 1
+        else:
+          print("Change lower than others so IGNORED")
         
 
   with open("stockStatus.json", "w") as file:
