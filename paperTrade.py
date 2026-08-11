@@ -4,6 +4,7 @@ import os
 import test
 import json
 import time
+import numpy as np
 
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
@@ -11,11 +12,63 @@ from alpaca.trading.enums import OrderSide, TimeInForce
 
 load_dotenv()
 
+
+def stockAction(decision, stockStatus, stockName, tradeClient, buyAmount=0):
+  if decision == "BUY":
+    buyRequest = MarketOrderRequest(
+      symbol=stockName,
+      notional=buyAmount,
+      side=OrderSide.BUY,
+      time_in_force=TimeInForce.DAY
+    )
+
+    with open("stockHistory.txt", "a") as history:
+      history.write(f"\nBUY {stockName} FOR ${buyAmount}")
+
+    buyOrder = tradeClient.submit_order(order_data=buyRequest)
+    print(f"Invested ${buyAmount} into {stockName}. Order ID: {buyOrder.id}")
+
+    stockStatus[stockName]["inShares"] = True
+    stockStatus[stockName]["buyValue"] = buyAmount
+
+  elif decision == "SELL":
+    try:
+
+      positionOrder = tradeClient.close_position(stockName)
+      orderID = positionOrder.id
+      deltaCash = 0
+      max_retries = 10
+      for _ in range(max_retries):
+        orderStatus = tradeClient.get_order_by_id(orderID)
+        if orderStatus.status == 'filled':
+          filledQuantity = float(orderStatus.filled_qty)
+          avgPrice = float(orderStatus.filled_avg_price)
+          
+          deltaCash = filledQuantity * avgPrice
+          break
+        time.sleep(1)
+
+      deltaCashPCT = ((deltaCash - stockStatus[stockName]["buyValue"]) / stockStatus[stockName]["buyValue"]) * 100
+      print(f"Successfully sold all shares of {stockName} for ${deltaCash} giving return of {(deltaCashPCT):.4f}%")
+
+      stockStatus[stockName]["buyValue"] = 0
+      stockStatus[stockName]["inShares"] = False
+
+      with open("stockHistory.txt", "a") as history:
+        history.write(f"\nSOLD {stockName} FOR ${deltaCash} AND RETURN {(deltaCashPCT):.4f}%")
+
+    except Exception as e:
+      print(f"Could not sell. Ensure you actually hold a position: {e}")
+
+  return stockStatus
+
+
 def makeTrade(stockNames, allStockToday, model, viewMode=False):
   API_key = os.getenv("ALPACA_API_KEY")
   SECRET_key = os.getenv("ALPACA_SECRET_KEY")
 
   tradeClient = TradingClient(API_key, SECRET_key, paper=True)
+  account = tradeClient.get_account()
   stockStatus = {}
   
   with open("stockStatus.json", "r+") as file:
@@ -23,9 +76,9 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
     for stock in stockNames:
       if stock not in data:
-        data[stock] = False
-        data[stock+"Value"] = 10000
-        data[stock+"Initial"] = 10000
+        data[stock] = {}
+        data[stock]["inShares"] = False
+        data[stock]["buyValue"] = 0
 
     stockStatus = data.copy()
 
@@ -34,62 +87,43 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
     json.dump(data, file, indent=4)
 
-  for i in range(len(stockNames)):
-    print(f"Now managing stock {stockNames[i]}")
-    prediction = test.givePrediction(data=allStockToday[i], model=model)
+  predictions = test.givePrediction(data=allStockToday, model=model)
+  stockNamesNP = np.array(stockNames)
 
-    if viewMode:
-      print(f"This stock is expected to change by {(prediction[0] * 100):.4f}%")
+  sortOrder = np.argsort(predictions)
 
-    else:
+  predictions = predictions[sortOrder]
+  stockNamesNP = stockNamesNP[sortOrder]
 
-      decision = dbsc.stockDecision(pred=prediction, todayReturn=allStockToday[i]["Return1"].item(), inShares=stockStatus[stockNames[i]])
+  if viewMode:
+    for i in range(len(stockNames)):
+      print(f"{i+1}. {stockNamesNP[i]}")
+      print(f"This stock is expected to change by {(predictions[i] * 100):.4f}%")
 
-      if decision == "BUY":
-        buyRequest = MarketOrderRequest(
-          symbol=stockNames[i],
-          notional=stockStatus[stockNames[i]+"Value"],
-          side=OrderSide.BUY,
-          time_in_force=TimeInForce.DAY
-        )
+  else:
+    for i in range(len(stockNames)-1, -1, -1):
+      if predictions[i] < 0:
+        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]])
+        stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNames[i], tradeClient=tradeClient)
 
-        with open("stockHistory.txt", "a") as history:
-          history.write(f"\nBUY {stockNames[i]} FOR ${stockStatus[stockNames[i]+"Value"]}")
+    print("Please wait while any sell transactions are pending")
+    time.sleep(10) # TIME FOR ALPACA TO PROCESS ANY SELL TRANSACTIONS
+    inShareCount = 0
 
-        buyOrder = tradeClient.submit_order(order_data=buyRequest)
-        print(f"Invested ${stockStatus[stockNames[i]+"Value"]} into {stockNames[i]}. Order ID: {buyOrder.id}")
+    for stock in stockNames:
+      if data[stock]["inShares"]:
+        inShareCount += 1
 
-        stockStatus[stockNames[i]] = True
-        stockStatus[stockNames[i]+"Initial"] = stockStatus[stockNames[i]+"Value"]
-        stockStatus[stockNames[i]+"Value"] = 0
+    canBuy = 10 - inShareCount
+    cashPerStock = float(account.non_marginable_buying_power) / canBuy
 
-      elif decision == "SELL":
-        try:
-
-          positionOrder = tradeClient.close_position(stockNames[i])
-          orderID = positionOrder.id
-          deltaCash = 0
-          max_retries = 10
-          for _ in range(max_retries):
-            orderStatus = tradeClient.get_order_by_id(orderID)
-            if orderStatus.status == 'filled':
-              filledQuantity = float(orderStatus.filled_qty)
-              avgPrice = float(orderStatus.filled_avg_price)
-              
-              deltaCash = filledQuantity * avgPrice
-              break
-            time.sleep(1)
-
-          deltaCashPCT = ((deltaCash - stockStatus[stockNames[i]+"Initial"]) / stockStatus[stockNames[i]+"Initial"]) * 100
-          print(f"Successfully sold all shares of {stockNames[i]} for ${deltaCash} giving return of {(deltaCashPCT):.4f}%")
-
-          stockStatus[stockNames[i]+"Values"] = deltaCash
-
-          with open("stockHistory.txt", "a") as history:
-            history.write(f"\nSOLD {stockNames[i]} FOR ${deltaCash} AND RETURN {(deltaCashPCT):.4f}%")
-
-        except Exception as e:
-          print(f"Could not sell. Ensure you actually hold a position: {e}")
+    for i in range(canBuy):
+      decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNames[i]])
+      if decision != "BUY":
+        break
+      else:
+        stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNames[i], tradeClient=tradeClient, buyAmount=cashPerStock)
+        
 
   with open("stockStatus.json", "w") as file:
     json.dump(stockStatus, file, indent=4)

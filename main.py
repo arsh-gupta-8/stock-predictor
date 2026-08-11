@@ -66,7 +66,7 @@ def main():
   stockModel = None
   stockNamesTraining = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
   stockNamesTesting = ["GOOGL"]
-  stockNamesTrading = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY"]
+  stockNamesTrading = ["AAPL", "MSFT", "NVDA", "JPM", "BAC", "AMZN", "WMT", "JNJ", "PFE", "SPY", "TSLA", "GOOGL", "META", "AMD", "AVGO", "LLY", "V", "COST", "QQQ", "XLF"]
 
   option = -1
   while option != 9:
@@ -90,7 +90,10 @@ def main():
       if viewing == "N":
         viewMode = False
 
-      stockDataToday = [getTodayStockData(stockName=stockName) for stockName in stockNamesTrading]
+      stockDataToday =  getTodayStockData(stockName=stockNamesTrading[0])
+      for stockName in stockNamesTrading[1:]:
+        stockDataToday = pd.concat([stockDataToday, getTodayStockData(stockName=stockName)], ignore_index=True)
+
       paperTrade.makeTrade(stockNames=stockNamesTrading, allStockToday=stockDataToday, model=stockModel, viewMode=viewMode)
 
     elif option == 1:
