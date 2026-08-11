@@ -54,7 +54,7 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
         )
 
         with open("stockHistory.txt", "a") as history:
-          history.write(f"BUY {stockNames[i]} FOR ${stockStatus[stockNames[i]+"Value"]}")
+          history.write(f"\nBUY {stockNames[i]} FOR ${stockStatus[stockNames[i]+"Value"]}")
 
         buyOrder = tradeClient.submit_order(order_data=buyRequest)
         print(f"Invested ${stockStatus[stockNames[i]+"Value"]} into {stockNames[i]}. Order ID: {buyOrder.id}")
@@ -65,19 +65,28 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
       elif decision == "SELL":
         try:
-          cashBefore = float(tradeClient.get_account().cash)
-          tradeClient.close_position(stockNames[i])
-          time.sleep(3) # GIVE TIME FOR ALPACA TO PROCESS
-          cashAfter = float(tradeClient.get_account().cash)
 
-          deltaCash = cashAfter - cashBefore
+          positionOrder = tradeClient.close_position(stockNames[i])
+          orderID = positionOrder.id
+          deltaCash = 0
+          max_retries = 10
+          for _ in range(max_retries):
+            orderStatus = tradeClient.get_order_by_id(orderID)
+            if orderStatus.status == 'filled':
+              filledQuantity = float(orderStatus.filled_qty)
+              avgPrice = float(orderStatus.filled_avg_price)
+              
+              deltaCash = filledQuantity * avgPrice
+              break
+            time.sleep(1)
+
           deltaCashPCT = ((deltaCash - stockStatus[stockNames[i]+"Initial"]) / stockStatus[stockNames[i]+"Initial"]) * 100
           print(f"Successfully sold all shares of {stockNames[i]} for ${deltaCash} giving return of {(deltaCashPCT):.4f}%")
 
           stockStatus[stockNames[i]+"Values"] = deltaCash
 
           with open("stockHistory.txt", "a") as history:
-            history.write(f"SOLD {stockNames[i]} FOR ${deltaCash} AND RETURN {(deltaCashPCT):.4f}%")
+            history.write(f"\nSOLD {stockNames[i]} FOR ${deltaCash} AND RETURN {(deltaCashPCT):.4f}%")
 
         except Exception as e:
           print(f"Could not sell. Ensure you actually hold a position: {e}")

@@ -14,11 +14,11 @@
     "BAC": false,
     "BACValue": 10000,
     "BACInitial": 10000,
-    "AMZN": false,
-    "AMZNValue": 10000,
+    "AMZN": true,
+    "AMZNValue": 0,
     "AMZNInitial": 10000,
-    "WMT": false,
-    "WMTValue": 10000,
+    "WMT": true,
+    "WMTValue": 0,
     "WMTInitial": 10000,
     "JNJ": true,
     "JNJValue": 0,
@@ -28,5 +28,6 @@
     "PFEInitial": 10000,
     "SPY": false,
     "SPYValue": 10000,
-    "SPYInitial": 10000
+    "SPYInitial": 10000,
+    "NVDAValues": 0.0
 }
