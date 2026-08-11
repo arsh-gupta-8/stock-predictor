@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from Strategies import DailyBuySellCheck as dbsc
+import Strategies as strat
 import os
 import test
 import json
@@ -101,12 +101,14 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
     print(f"This stock is expected to change by {(predictions[i] * 100):.4f}%")
 
   if not viewMode:
+    print("\nNow accessing API for trading\n")
     for i in range(len(stockNames)):
       if stockStatus[stockNamesNP[i]]["inShares"]:
         currentAmount = tradeClient.close_position(stockNamesNP[i])
         valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
-        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
         if decision == "SELL":
+          print(f"For the stock {stockNamesNP[i]}")
           stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient)
 
     print("Please wait while any sell transactions are pending")
@@ -124,8 +126,9 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
       if not stockStatus[stockNamesNP[i]]["inShares"]:
         currentAmount = tradeClient.close_position(stockNamesNP[i])
         valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
-        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
         if decision == "BUY" and canBuy > 0:
+          print(f"For the stock {stockNamesNP[i]}")
           stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
           canBuy -= 1
         
