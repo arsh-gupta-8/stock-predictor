@@ -4,32 +4,32 @@
         "buyValue": 0
     },
     "MSFT": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 10000
     },
     "NVDA": {
         "inShares": false,
         "buyValue": 0
     },
     "JPM": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 10000
     },
     "BAC": {
         "inShares": false,
         "buyValue": 0
     },
     "AMZN": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 10000
     },
     "WMT": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 10000
     },
     "JNJ": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 10000
     },
     "PFE": {
         "inShares": false,

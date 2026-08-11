@@ -101,10 +101,13 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
     print(f"This stock is expected to change by {(predictions[i] * 100):.4f}%")
 
   if not viewMode:
-    for i in range(len(stockNames)-1, -1, -1):
-      if predictions[i] < 0:
-        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]])
-        stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNames[i], tradeClient=tradeClient)
+    for i in range(len(stockNames)):
+      if stockStatus[stockNamesNP[i]]["inShares"]:
+        currentAmount = tradeClient.close_position(stockNamesNP[i])
+        valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
+        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        if decision == "SELL":
+          stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient)
 
     print("Please wait while any sell transactions are pending")
     time.sleep(10) # TIME FOR ALPACA TO PROCESS ANY SELL TRANSACTIONS
@@ -117,12 +120,14 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
     canBuy = 10 - inShareCount
     cashPerStock = float(account.non_marginable_buying_power) / canBuy
 
-    for i in range(canBuy):
-      decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNames[i]])
-      if decision != "BUY":
-        break
-      else:
-        stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNames[i], tradeClient=tradeClient, buyAmount=cashPerStock)
+    for i in range(len(stockNames)):
+      if not stockStatus[stockNamesNP[i]]["inShares"]:
+        currentAmount = tradeClient.close_position(stockNamesNP[i])
+        valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
+        decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        if decision == "BUY" and canBuy > 0:
+          stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
+          canBuy -= 1
         
 
   with open("stockStatus.json", "w") as file:
