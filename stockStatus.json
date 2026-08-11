@@ -1,33 +1,82 @@
 {
-    "AAPL": false,
-    "AAPLValue": 10000,
-    "AAPLInitial": 10000,
-    "MSFT": true,
-    "MSFTValue": 0,
-    "MSFTInitial": 10000,
-    "NVDA": true,
-    "NVDAValue": 0,
-    "NVDAInitial": 10000,
-    "JPM": true,
-    "JPMValue": 0,
-    "JPMInitial": 10000,
-    "BAC": false,
-    "BACValue": 10000,
-    "BACInitial": 10000,
-    "AMZN": true,
-    "AMZNValue": 0,
-    "AMZNInitial": 10000,
-    "WMT": true,
-    "WMTValue": 0,
-    "WMTInitial": 10000,
-    "JNJ": true,
-    "JNJValue": 0,
-    "JNJInitial": 10000,
-    "PFE": false,
-    "PFEValue": 10000,
-    "PFEInitial": 10000,
-    "SPY": false,
-    "SPYValue": 10000,
-    "SPYInitial": 10000,
-    "NVDAValues": 0.0
+    "AAPL": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "MSFT": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "NVDA": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "JPM": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "BAC": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "AMZN": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "WMT": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "JNJ": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "PFE": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "SPY": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "TSLA": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "GOOGL": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "META": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "AMD": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "AVGO": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "LLY": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "V": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "COST": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "QQQ": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "XLF": {
+        "inShares": false,
+        "buyValue": 0
+    }
 }

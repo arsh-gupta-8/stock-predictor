@@ -92,15 +92,15 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
   sortOrder = np.argsort(predictions)
 
-  predictions = predictions[sortOrder]
-  stockNamesNP = stockNamesNP[sortOrder]
+  predictions = predictions[sortOrder][::-1]
+  stockNamesNP = stockNamesNP[sortOrder][::-1]
 
-  if viewMode:
-    for i in range(len(stockNames)):
-      print(f"{i+1}. {stockNamesNP[i]}")
-      print(f"This stock is expected to change by {(predictions[i] * 100):.4f}%")
+  
+  for i in range(len(stockNames)):
+    print(f"{i+1}. {stockNamesNP[i]}")
+    print(f"This stock is expected to change by {(predictions[i] * 100):.4f}%")
 
-  else:
+  if not viewMode:
     for i in range(len(stockNames)-1, -1, -1):
       if predictions[i] < 0:
         decision = dbsc.stockDecision(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]])
