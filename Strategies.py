@@ -1,7 +1,7 @@
 import test
 import yfinance as yf
 
-def DayBuySellCheck(pred, inShares, valueChange):
+def DayBuySellCheck(pred, inShares, valueChange=0):
 
   if not inShares:
     if pred > 0.005:

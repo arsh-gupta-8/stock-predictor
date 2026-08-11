@@ -4,8 +4,8 @@
         "buyValue": 0
     },
     "MSFT": {
-        "inShares": true,
-        "buyValue": 10000
+        "inShares": false,
+        "buyValue": 0
     },
     "NVDA": {
         "inShares": false,
@@ -20,8 +20,8 @@
         "buyValue": 0
     },
     "AMZN": {
-        "inShares": true,
-        "buyValue": 10000
+        "inShares": false,
+        "buyValue": 0
     },
     "WMT": {
         "inShares": true,

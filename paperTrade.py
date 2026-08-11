@@ -104,8 +104,9 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
     print("\nNow accessing API for trading\n")
     for i in range(len(stockNames)):
       if stockStatus[stockNamesNP[i]]["inShares"]:
-        currentAmount = tradeClient.close_position(stockNamesNP[i])
-        valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
+        accountShare = tradeClient.get_open_position(stockNamesNP[i])
+        currentAmount = float(accountShare.market_value)
+        valueChange = (currentAmount - stockStatus[stockNamesNP[i]]["buyValue"]) / stockStatus[stockNamesNP[i]]["buyValue"]
         decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
         if decision == "SELL":
           print(f"For the stock {stockNamesNP[i]}")
@@ -124,9 +125,7 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
 
     for i in range(len(stockNames)):
       if not stockStatus[stockNamesNP[i]]["inShares"]:
-        currentAmount = tradeClient.close_position(stockNamesNP[i])
-        valueChange = (currentAmount - stockStatus[stockNamesNP[i]["buyValue"]]) / stockStatus[stockNamesNP[i]["buyValue"]]
-        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]], valueChange=valueChange)
+        decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]])
         if decision == "BUY" and canBuy > 0:
           print(f"For the stock {stockNamesNP[i]}")
           stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
