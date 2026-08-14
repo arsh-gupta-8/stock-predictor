@@ -32,6 +32,7 @@ ALPACA_SECRET_KEY=
 6. Select option 0. Entering in viewmode will not make any trades on your alpaca account, it will just show the predictions of each stock. Not entering in view mdoe will make trades depending on the predictions and strategy
 
 Here is a visual of what the options menu looks like
+
 <img width="295" height="162" alt="image" src="https://github.com/user-attachments/assets/1c58af86-e6b8-4d3d-9677-7aa53a6f3eab" />
 
 ## Future Updates
