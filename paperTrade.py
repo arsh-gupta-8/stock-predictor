@@ -116,20 +116,27 @@ def makeTrade(stockNames, allStockToday, model, viewMode=False):
         inShareCount += 1
 
     canBuy = 10 - inShareCount
-    cashPerStock = math.floor(float(account.non_marginable_buying_power) / canBuy)
 
-    print("---------- NOW BUYING ----------")
+    if canBuy > 0:
+      cashPerStock = math.floor(float(account.cash) / canBuy)
 
-    for i in range(len(stockNames)):
-      if not stockStatus[stockNamesNP[i]]["inShares"]:
-        print(f"{i+1}. For the stock {stockNamesNP[i]}")
-        if canBuy > 0:
-          decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"])
-          if decision == "BUY":
-            stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
-            canBuy -= 1
-        else:
-          print("Change lower than others so IGNORED")
+      print(f"Slots Available: {canBuy}")
+      print(f"Fund Per Stock Available: {cashPerStock}")
+
+      print("---------- NOW BUYING ----------")
+
+      for i in range(len(stockNames)):
+        if not stockStatus[stockNamesNP[i]]["inShares"]:
+          print(f"{i+1}. For the stock {stockNamesNP[i]}")
+          if canBuy > 0:
+            decision = strat.DayBuySellCheck(pred=predictions[i], inShares=stockStatus[stockNamesNP[i]]["inShares"])
+            if decision == "BUY":
+              stockStatus = stockAction(decision=decision, stockStatus=stockStatus, stockName=stockNamesNP[i], tradeClient=tradeClient, buyAmount=cashPerStock)
+              canBuy -= 1
+          else:
+            print("Change lower than others so IGNORED")
+    else:
+      print("Stock slots all full")
         
 
   with open("stockStatus.json", "w") as file:

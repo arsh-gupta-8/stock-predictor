@@ -5,7 +5,7 @@
     },
     "MSFT": {
         "inShares": true,
-        "buyValue": 9390
+        "buyValue": 10000
     },
     "NVDA": {
         "inShares": false,
@@ -21,11 +21,11 @@
     },
     "AMZN": {
         "inShares": true,
-        "buyValue": 9390
+        "buyValue": 10000
     },
     "WMT": {
-        "inShares": true,
-        "buyValue": 10000
+        "inShares": false,
+        "buyValue": 0
     },
     "JNJ": {
         "inShares": false,
@@ -41,23 +41,23 @@
     },
     "TSLA": {
         "inShares": true,
-        "buyValue": 9390
+        "buyValue": 10000
     },
     "GOOGL": {
         "inShares": true,
-        "buyValue": 9390
+        "buyValue": 10000
     },
     "META": {
         "inShares": true,
-        "buyValue": 16552
+        "buyValue": 10000
     },
     "AMD": {
         "inShares": false,
         "buyValue": 0
     },
     "AVGO": {
-        "inShares": true,
-        "buyValue": 17405
+        "inShares": false,
+        "buyValue": 0
     },
     "LLY": {
         "inShares": false,
@@ -73,7 +73,7 @@
     },
     "QQQ": {
         "inShares": true,
-        "buyValue": 17405
+        "buyValue": 10000
     },
     "XLF": {
         "inShares": false,
