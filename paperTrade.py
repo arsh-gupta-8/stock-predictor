@@ -35,19 +35,10 @@ def stockAction(decision, stockStatus, stockName, tradeClient, buyAmount=0):
   elif decision == "SELL":
     try:
 
-      positionOrder = tradeClient.close_position(stockName)
-      orderID = positionOrder.id
-      deltaCash = 0
-      max_retries = 10
-      for _ in range(max_retries):
-        orderStatus = tradeClient.get_order_by_id(orderID)
-        if orderStatus.status == 'filled':
-          filledQuantity = float(orderStatus.filled_qty)
-          avgPrice = float(orderStatus.filled_avg_price)
-          
-          deltaCash = filledQuantity * avgPrice
-          break
-        time.sleep(1)
+      position = tradeClient.get_open_position(stockName)
+      deltaCash = float(position.market_value)
+
+      tradeClient.close_position(stockName)
 
       deltaCashPCT = ((deltaCash - stockStatus[stockName]["buyValue"]) / stockStatus[stockName]["buyValue"]) * 100
       print(f"Successfully sold all shares of {stockName} for ${deltaCash} giving return of {(deltaCashPCT):.4f}%")

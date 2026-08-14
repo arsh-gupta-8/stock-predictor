@@ -11,8 +11,11 @@ def DayBuySellCheck(pred, inShares, valueChange=0):
       print(f"Expected to change by {pred * 100}% so NOT BUYING")
           
   else:
-    if (valueChange < -0.01 and pred < 0.005) or pred < 0:
+    if pred < 0:
       print(f"Expected to decrease by {pred * 100}% so SELLING")
+      return "SELL"
+    elif (valueChange < -0.01 and pred < 0.005):
+      print(f"Decreased by {(valueChange * 100):.4f}% so SELLING")
       return "SELL"
     else:
       print(f"Expected to change by {pred * 100}% so HOLDING")

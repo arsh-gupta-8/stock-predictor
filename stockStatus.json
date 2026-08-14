@@ -1,7 +1,7 @@
 {
     "AAPL": {
-        "inShares": true,
-        "buyValue": 9390
+        "inShares": false,
+        "buyValue": 0
     },
     "MSFT": {
         "inShares": true,
@@ -12,8 +12,8 @@
         "buyValue": 0
     },
     "JPM": {
-        "inShares": true,
-        "buyValue": 10000
+        "inShares": false,
+        "buyValue": 0
     },
     "BAC": {
         "inShares": false,
@@ -49,31 +49,31 @@
     },
     "META": {
         "inShares": true,
-        "buyValue": 9390
+        "buyValue": 16552
     },
     "AMD": {
         "inShares": false,
         "buyValue": 0
     },
     "AVGO": {
-        "inShares": false,
-        "buyValue": 0
+        "inShares": true,
+        "buyValue": 17405
     },
     "LLY": {
         "inShares": false,
         "buyValue": 0
     },
     "V": {
-        "inShares": true,
-        "buyValue": 9390
-    },
-    "COST": {
-        "inShares": true,
-        "buyValue": 9390
-    },
-    "QQQ": {
         "inShares": false,
         "buyValue": 0
+    },
+    "COST": {
+        "inShares": false,
+        "buyValue": 0
+    },
+    "QQQ": {
+        "inShares": true,
+        "buyValue": 17405
     },
     "XLF": {
         "inShares": false,
